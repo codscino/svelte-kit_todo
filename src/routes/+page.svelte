@@ -1,46 +1,92 @@
 <script>
-    import { account, ID } from '$lib/appwrite';
+	import { invalidateAll } from '$app/navigation';
+	import { addIdea, deleteIdea } from '$lib/ideas.js';
+	import { user } from '$lib/user.js';
 
-    let loggedInUser = null;
+	export let data;
 
-    async function login(email, password) {
-        await account.createEmailSession(email, password);
-        loggedInUser = await account.get();
-    }
+	const add = async (e) => {
+		e.preventDefault();
+		const formEl = e.target;
+		const formData = new FormData(formEl);
+		await addIdea($user.$id, formData.get('title'), formData.get('description'));
+		invalidateAll();
 
-    async function register(email, password) {
-        await account.create(ID.unique(), email, password);
-        login(email, password);
-    }
+		// Reset form
+		formEl.reset();
+	};
 
-    function submit(e) {
-        e.preventDefault();
-        const formData = new FormData(e.target);
-        const type = e.submitter.dataset.type;
-        
-        if (type === "login") {
-            login(formData.get('email'), formData.get('password'));
-        } else if (type === "register") {
-            register(formData.get('email'), formData.get('password'));
-        }
-    }
-
-    async function logout() {
-        await account.deleteSession('current');
-        loggedInUser = null;
-    }
+	const remove = async (id) => {
+		await deleteIdea(id);
+		invalidateAll();
+	};
 </script>
 
-<p>
-    {loggedInUser ? `Logged in as ${loggedInUser.name}` : 'Not logged in'}
-</p>
+{#if $user}
+	<section>
+		<h2>Submit Idea</h2>
+		<form on:submit={add}>
+			<label>
+				Title
+				<input type="text" placeholder="Title" name="title" required />
+			</label>
+			<label>
+				Description
+				<textarea placeholder="Description" name="description" />
+			</label>
+			<button type="submit">Submit</button>
+		</form>
+	</section>
+{:else}
+	<section><p>Please login to submit an idea.</p></section>
+{/if}
 
-<form on:submit={submit}>
-    <input type="email" placeholder="Email" name="email" required />
-    <input type="password" placeholder="Password" name="password" required />
+<section>
+	<h2>Latest Ideas</h2>
+	{#if data.ideas.total === 0}
+		<p>No ideas yet.</p>
+	{:else}
+		<p>{data.ideas.total} ideas found</p>
+	{/if}
+	<ul>
+		{#each data.ideas.documents as idea}
+			<li>
+				<strong>{idea.title}</strong>
+				{#if idea.description}
+					<p>{idea.description}</p>
+				{/if}
+				{#if $user && idea.userId === $user.$id}
+					<button type="button" on:click={() => remove(idea.$id)}>Remove</button>
+				{/if}
+			</li>
+		{/each}
+	</ul>
+</section>
 
-    <button type="submit" data-type="login">Login</button>
-    <button type="submit" data-type="register">Register</button>
-</form>
+<style>
+	section {
+		margin-bottom: 3rem;
+	}
+	form {
+		display: grid;
+		gap: 0.75rem;
+	}
 
-<button on:click={logout}>Logout</button>
+	label {
+		display: grid;
+		gap: 0.25rem;
+	}
+
+	ul {
+		list-style: none;
+		padding: 0;
+	}
+
+	li {
+		border-radius: 0.5rem;
+		border: 2px dashed pink;
+		min-width: 20%;
+		padding: 1rem;
+		margin-bottom: 1rem;
+	}
+</style>
