@@ -2,14 +2,15 @@
 	import { account, ID } from '$lib/appwrite';
 	import { type Models } from 'appwrite';
     import { Button } from "$lib/components/ui/button/index.js";
-
-	let loggedInUser: Models.Preferences | null = null;
+	import { loggedInUser } from '$lib/store'; // import the store
+	
+	//let loggedInUser: Models.Preferences | null = null;
 
 	async function login(email: string, password: string) {
-		await account.createEmailSession(email, password);
-		loggedInUser = await account.get();
-		console.log('logged');
-	}
+        await account.createEmailSession(email, password);
+        loggedInUser.set(await account.get()); // update the store
+        console.log('logged');
+    }
 
 	async function register(email: string, password: string) {
 		await account.create(ID.unique(), email, password);
@@ -34,7 +35,7 @@
 
 	async function logout() {
 		await account.deleteSession('current');
-		loggedInUser = null;
+		loggedInUser.set(null);
 	}
 </script>
 
@@ -52,8 +53,8 @@
         Logout
     </Button>
 
-    <div class="text-lg font-semibold mt-8" >
-        {loggedInUser ? `Sei loggato come:  ${loggedInUser.name}` : 'Non sei loggato'}
-    </div>
+	<div class="text-lg font-semibold mt-8" >
+		{$loggedInUser ? `Sei loggato come:  ${$loggedInUser.name}` : 'Non sei loggato'}
+	</div>
 
 </div>
