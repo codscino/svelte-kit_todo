@@ -1,7 +1,7 @@
 <script lang="ts">
 	import * as Form from '$lib/components/ui/form';
 	import { Input } from '$lib/components/ui/input';
-	import { formSchema, type FormSchema } from '$lib/schema';
+	import { siFormSchema , type FormSchema } from '$lib/schema';
 	import { type SuperValidated, type Infer, superForm } from 'sveltekit-superforms';
 	import { zodClient } from 'sveltekit-superforms/adapters';
 
@@ -14,7 +14,7 @@
 	export let data: SuperValidated<Infer<FormSchema>>;
 
 	const form = superForm(data, {
-		validators: zodClient(formSchema),
+		validators: zodClient(siFormSchema),
 		onSubmit: async ({ formData, submitter }) => {
 			const email = formData.get('email') as string;
 			const password = formData.get('password') as string;
@@ -55,12 +55,25 @@
 </script>
 
 {#if showHelloWorld}
-	<div class="mt-4 text-sm">
-		Already have an account?
-		<button on:click={handleClick} class="text-balck-500 underline focus:outline-none">
-			Sign in
-		</button>
-	</div>
+<Card.Root class="max-w-sm">
+    <Card.Header>
+        <Card.Title class="text-2xl">Sign Up</Card.Title>
+        <Card.Description>Enter your information to create an account</Card.Description>
+    </Card.Header>
+    <Card.Content>
+        <form method="POST" use:enhance>
+
+            <Form.Button type="submit" data-type="login" class="mt-8">Create an account</Form.Button>
+
+            <div class="mt-4 text-sm">
+                Already have an account?
+                <button on:click={handleClick} class="text-balck-500 underline focus:outline-none">
+                    Sign in
+                </button>
+            </div>
+        </form>
+    </Card.Content>
+</Card.Root>
 {:else}
 	<Card.Root class="max-w-sm">
 		<Card.Header>
