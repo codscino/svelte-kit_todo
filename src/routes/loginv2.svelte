@@ -12,6 +12,9 @@
 	import * as Card from '$lib/components/ui/card/index.js';
 	import { Label } from '$lib/components/ui/label/index.js';
 
+	let loginError: string | null = null;
+	let registerError: string | null = null;
+
 	export let sidata: SuperValidated<Infer<iFormSchema>>;
 	export let sudata: SuperValidated<Infer<uFormSchema>>;
 
@@ -23,6 +26,7 @@
 
 			const type = submitter?.dataset.type;
 			await login(email, password);
+			console.log('logged');
 		}
 	});
 
@@ -35,7 +39,7 @@
 			const password = formData.get('password') as string;
 
 			const type = submitter?.dataset.type;
-			await register(email, password);
+			await register(email, password, name, surname);
 		}
 	});
 
@@ -43,13 +47,22 @@
 	const { form: suFormData, enhance: suEnhance } = suform;
 
 	async function login(email: string, password: string) {
-		await account.createEmailSession(email, password);
-		loggedInUser.set(await account.get()); // update the store
-		console.log('logged');
+		try {
+			await account.createEmailSession(email, password);
+			loggedInUser.set(await account.get()); // update the store
+			loginError = null; // clear the error message upon successful login
+		} catch (error) {
+			loginError = (error as Error).message; // set the error message if login fails
+		}
 	}
 
-	async function register(email: string, password: string) {
-		await account.create(ID.unique(), email, password);
+	async function register(email: string, password: string, name: string, surname: string) {
+		try {
+			await account.create(ID.unique(), email, password, name + ' ' + surname);
+		} catch (error) {
+			console.error(error);
+			registerError = (error as Error).message; // set the error message if registration fails
+		}
 		login(email, password);
 	}
 
@@ -58,14 +71,26 @@
 		loggedInUser.set(null);
 	}
 
-	let showHelloWorld = false;
+	let isSignUp = false;
 
 	function handleClick() {
-		showHelloWorld = !showHelloWorld;
+		isSignUp = !isSignUp;
 	}
 </script>
 
-{#if showHelloWorld}
+{#if $loggedInUser}
+	<div class="">
+		<div class="mb-8 mt-8 text-lg font-semibold">
+			<div class="mb-8 mt-8 text-lg font-semibold">
+				Benvenuto egregissimo<br /><span class="font-normal">{$loggedInUser.name}</span>
+			</div>
+		</div>
+
+		<form on:submit={logout}>
+			<Button type="submit" variant="destructive">Logout</Button>
+		</form>
+	</div>
+{:else if isSignUp}
 	<Card.Root class="max-w-sm">
 		<Card.Header>
 			<Card.Title class="text-2xl">Sign Up</Card.Title>
@@ -129,7 +154,10 @@
 					<Form.FieldErrors />
 				</Form.Field>
 
-				<Form.Button type="submit" data-type="login" class="mt-8">Create an account</Form.Button>
+				<Form.Button type="submit" class="mt-8">Create an account</Form.Button>
+				{#if registerError}
+					<div class="mt-4 text-red-500">{registerError}</div>
+				{/if}
 
 				<div class="mt-4 text-sm">
 					Already have an account?
@@ -176,7 +204,11 @@
 					<Form.FieldErrors />
 				</Form.Field>
 
-				<Form.Button type="submit" data-type="login" class="mt-8">Login</Form.Button>
+				<Form.Button type="submit" class="mt-8">Login</Form.Button>
+				<!-- Display the error message if it exists -->
+				{#if loginError}
+					<div class="mt-4 text-red-500">{loginError}</div>
+				{/if}
 
 				<div class="mt-4 text-sm">
 					Don&apos;t have an account?

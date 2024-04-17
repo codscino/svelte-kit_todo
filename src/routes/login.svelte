@@ -3,8 +3,6 @@
 	import { type Models } from 'appwrite';
     import { Button } from "$lib/components/ui/button/index.js";
 	import { loggedInUser } from '$lib/store'; // import the store
-	
-	//let loggedInUser: Models.Preferences | null = null;
 
 	async function login(email: string, password: string) {
         await account.createEmailSession(email, password);

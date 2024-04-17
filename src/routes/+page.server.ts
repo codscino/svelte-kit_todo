@@ -8,7 +8,6 @@ export const load: PageServerLoad = async () => {
 	return {
 		siform: await superValidate(zod(siFormSchema)),
 		suform: await superValidate(zod(suFormSchema))
-		// how to call form with other names?
 	};
 };
 

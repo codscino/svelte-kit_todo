@@ -12,10 +12,10 @@
 		<Ideas />
 	</div>
 	<div class="w-1/2 h-1/3">
-        <div class="h-1/4">
+        <!--<div class="h-1/4">
             <Login />
-        </div>
-        <div class="h-1/4 mt-72">
+        </div> -->
+        <div class="h-1/4 mt-32">
             <Loginv2 sidata={data.siform} sudata={data.suform} />
         </div>
     </div>
