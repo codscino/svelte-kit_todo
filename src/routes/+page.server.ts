@@ -1,29 +1,43 @@
-import type { PageServerLoad, Actions } from "./$types.js";
-import { fail } from "@sveltejs/kit";
-import { superValidate } from "sveltekit-superforms";
-import { zod } from "sveltekit-superforms/adapters";
-import {siFormSchema } from "$lib/schema";
- 
+import type { PageServerLoad, Actions } from './$types.js';
+import { fail } from '@sveltejs/kit';
+import { superValidate } from 'sveltekit-superforms';
+import { zod } from 'sveltekit-superforms/adapters';
+import { siFormSchema, suFormSchema } from '$lib/schema';
+
 export const load: PageServerLoad = async () => {
-  return {
-    form: await superValidate(zod(siFormSchema )),
-  };
+	return {
+		siform: await superValidate(zod(siFormSchema)),
+		suform: await superValidate(zod(suFormSchema))
+		// how to call form with other names?
+	};
 };
- 
+
 export const actions: Actions = {
-  default: async (event) => {
-    const form = await superValidate(event, zod(siFormSchema ));
-    if (!form.valid) {
-    console.log('cellaaa');
-      return fail(400, {
-        form,
-      });
-    }
-    console.log('bellaaa');
-    return {
-      form,
-    };
-  },
+	login: async (event) => {
+		const siform = await superValidate(event, zod(siFormSchema));
+		if (!siform.valid) {
+			console.log('cellaaa');
+			return fail(400, {
+				siform
+			});
+		}
+		console.log('bellaaa');
+		return {
+			siform
+		};
+	},
+
+	register: async (event) => {
+		const suform = await superValidate(event, zod(suFormSchema));
+		if (!suform.valid) {
+			console.log('cellaaa');
+			return fail(400, {
+				suform
+			});
+		}
+		console.log('bellaaa');
+		return {
+			suform
+		};
+	}
 };
-
-

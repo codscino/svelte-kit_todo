@@ -12,5 +12,5 @@ export const suFormSchema = z.object({
   password: z.string().min(2).max(50),
 });
  
-export type FormSchema = typeof siFormSchema;
-export type ExtendedFormSchema = typeof suFormSchema;
+export type iFormSchema = typeof siFormSchema;
+export type uFormSchema = typeof suFormSchema;

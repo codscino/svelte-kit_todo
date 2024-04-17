@@ -3,7 +3,7 @@
 	import Ideas from './ideas.svelte';
 
 	import type { PageData } from './$types.js';
-	import SettingsForm from './settings-form.svelte';
+	import Loginv2 from './loginv2.svelte';
 	export let data: PageData;
 </script>
 
@@ -16,7 +16,7 @@
             <Login />
         </div>
         <div class="h-1/4 mt-72">
-            <SettingsForm data={data.form} />
+            <Loginv2 sidata={data.siform} sudata={data.suform} />
         </div>
     </div>
 </div>
